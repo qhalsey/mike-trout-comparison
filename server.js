@@ -1,9 +1,17 @@
 const express = require("express");
 const rp = require("request-promise");
 const cheerio = require("cheerio");
+const morgan = require("morgan");
+const bodyParser = require("body-parser");
+const path = require('path');
 const PORT = 3000;
 
 let app = express();
+
+app.use(morgan('dev'));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(express.static(path.join(__dirname, 'public')));
 
 const getStatistic = (field, $) => {
     let array = [];
@@ -13,6 +21,10 @@ const getStatistic = (field, $) => {
 
     return array;
 }
+
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/public/HTML/index.html');
+});
 
 app.get("/mikeTrout", (req, res) => {
     let options = {
@@ -57,7 +69,7 @@ app.get('/compare/:player', (req, res) => {
     console.log(firstname);
     console.log(lastname);
     let options = {
-        uri: `https://www.baseball-reference.com/players/${lastname.substring(0, 1)}/${lastname}${firstname}01.shtml`
+        uri: `https://www.baseball-reference.com/players/${lastname.substring(0, 1).toLowerCase()}/${lastname.toLowerCase()}${firstname.toLowerCase()}01.shtml`
     }
 
     rp(options)
